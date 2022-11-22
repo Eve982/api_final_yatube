@@ -1,18 +1,18 @@
-from rest_framework import filters, permissions, viewsets
+from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 
-from .permissions import CreateListModelViewSet, IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly
 from .serializers import (CommentSerializer, FollowSerializer, GroupSerializer,
                           PostSerializer)
-from posts.models import Comment, Follow, Group, Post, User
+from posts.models import Comment, Group, Post
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (AllowAny,)
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -40,9 +40,10 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, post=post)
 
 
-class FollowViewSet(CreateListModelViewSet):
+class FollowViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
     serializer_class = FollowSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
     search_fields = (
         "user__username",
@@ -50,12 +51,7 @@ class FollowViewSet(CreateListModelViewSet):
     )
 
     def get_queryset(self):
-        user_ = self.request.user
-        return Follow.objects.filter(user=user_)
+        return self.request.user.follower.all()
 
     def perform_create(self, serializer):
-        user_ = self.request.user
-        username = self.request.data.get('following')
-        following = get_object_or_404(User, username=username)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=user_, following=following)
+        serializer.save(user=self.request.user)
