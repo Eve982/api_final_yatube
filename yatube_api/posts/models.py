@@ -11,7 +11,7 @@ class Group(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     class Meta:
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
@@ -43,7 +43,7 @@ class Post(models.Model):
 
     def __str__(self):
         return self.text
-    
+
     class Meta:
         verbose_name = 'Публикация'
         verbose_name_plural = 'Публикации'
@@ -53,12 +53,12 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
         related_name='comments',
-        verbose_name = 'Автор'
+        verbose_name='Автор'
     )
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE,
         related_name='comments',
-        verbose_name = 'Публикация'
+        verbose_name='Публикация'
     )
     text = models.TextField('Текст')
     created = models.DateTimeField(

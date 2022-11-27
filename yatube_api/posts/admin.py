@@ -12,7 +12,7 @@ class PostAdmin(admin.ModelAdmin):
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('pk', 'text', 'created', 'author', 'post')
-    search_fields = ('text',) 
+    search_fields = ('text',)
     list_filter = ('text', 'created', 'author', 'post')
 
 
