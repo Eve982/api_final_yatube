@@ -5,9 +5,9 @@ User = get_user_model()
 
 
 class Group(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField('Название', max_length=100)
     slug = models.SlugField(unique=True)
-    description = models.TextField()
+    description = models.TextField('Описание')
 
     def __str__(self):
         return self.title
@@ -18,11 +18,14 @@ class Group(models.Model):
 
 
 class Post(models.Model):
-    text = models.TextField()
+    text = models.TextField('Текст')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='posts'
+        User,
+        on_delete=models.CASCADE,
+        related_name='posts',
+        verbose_name='Автор'
     )
 
     image = models.ImageField(
@@ -35,6 +38,7 @@ class Post(models.Model):
         related_name="posts",
         blank=True,
         null=True,
+        verbose_name='Группа',
     )
 
     def __str__(self):
@@ -48,13 +52,15 @@ class Post(models.Model):
 class Comment(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
-        related_name='comments'
+        related_name='comments',
+        verbose_name = 'Автор'
     )
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE,
-        related_name='comments'
+        related_name='comments',
+        verbose_name = 'Публикация'
     )
-    text = models.TextField()
+    text = models.TextField('Текст')
     created = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
@@ -67,7 +73,7 @@ class Follow(models.Model):
     user = models.ForeignKey(User,
                              verbose_name='Подписчик',
                              related_name='follower',
-                             on_delete=models.CASCADE,)
+                             on_delete=models.CASCADE)
     following = models.ForeignKey(User,
                                   verbose_name='Автор',
                                   related_name='following',
